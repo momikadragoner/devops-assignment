@@ -27,8 +27,12 @@ ENV GITEA__server__APP_NAME="ELTE DevOps Gitea" \
     GITEA__service__REQUIRE_SIGNIN_VIEW="false" \
     GITEA__log__LEVEL="Info"
 
-# Copy the custom Gitea welcome page template (shown on the explore/home page)
-COPY custom/templates/home.tmpl /data/gitea/templates/home.tmpl
+# Copy all custom overrides — templates, CSS, and any future assets.
+# Structure mirrors Gitea's GITEA_CUSTOM directory:
+#   custom/templates/  → /data/gitea/templates/   (page template overrides)
+#   custom/public/     → /data/gitea/public/       (static assets: CSS, JS, images)
+COPY custom/templates/ /data/gitea/templates/
+COPY custom/public/    /data/gitea/public/
 
 # Gitea HTTP port
 EXPOSE 3000

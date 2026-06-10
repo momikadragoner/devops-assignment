@@ -1,0 +1,83 @@
+/* =============================================================================
+   ELTE DevOps Gitea — Custom Theme Overrides
+   Injected via custom/templates/custom/header.tmpl
+   ============================================================================= */
+
+/* ── Top navigation bar ──────────────────────────────────────────────────── */
+.ui.stackable.menu.navbar,
+#navbar,
+.navbar {
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%) !important;
+  border-bottom: 2px solid #5b45e0 !important;
+  box-shadow: 0 2px 12px rgba(91, 69, 224, 0.35) !important;
+}
+
+/* Keep navbar text white */
+.ui.stackable.menu.navbar .item,
+.ui.stackable.menu.navbar .item a,
+#navbar .item {
+  color: #e8e8f0 !important;
+}
+
+.ui.stackable.menu.navbar .item:hover {
+  color: #ffffff !important;
+  background: rgba(91, 69, 224, 0.2) !important;
+}
+
+/* ── Primary colour (buttons, links, checkboxes) ─────────────────────────── */
+:root {
+  --color-primary:        #5b45e0;
+  --color-primary-dark-1: #4a37c8;
+  --color-primary-dark-2: #3829b0;
+  --color-primary-light-1: #7060e8;
+  --color-primary-light-2: #8575f0;
+}
+
+.ui.primary.button,
+.ui.green.button {
+  background-color: #5b45e0 !important;
+  border-color: #4a37c8 !important;
+}
+
+.ui.primary.button:hover,
+.ui.green.button:hover {
+  background-color: #4a37c8 !important;
+}
+
+/* ── Repository card / explore page ─────────────────────────────────────── */
+.repository.search .item,
+.explore .card {
+  border-left: 3px solid #5b45e0;
+  transition: box-shadow 0.2s ease;
+}
+
+.repository.search .item:hover,
+.explore .card:hover {
+  box-shadow: 0 4px 16px rgba(91, 69, 224, 0.2);
+}
+
+/* ── Subtle page background ──────────────────────────────────────────────── */
+body {
+  background-color: #f5f4fd !important;
+}
+
+/* ── Home page hero ──────────────────────────────────────────────────────── */
+.page-content.home .hero.header {
+  color: #1a1a2e !important;
+}
+
+.page-content.home .hero.header .sub.header {
+  color: #5b45e0 !important;
+  font-weight: 600;
+}
+
+/* ── Footer ──────────────────────────────────────────────────────────────── */
+#footer {
+  border-top: 2px solid #5b45e0;
+  background: #1a1a2e !important;
+  color: #e8e8f0 !important;
+}
+
+#footer a {
+  color: #9b8ef8 !important;
+}

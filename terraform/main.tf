@@ -1,6 +1,9 @@
 ###############################################################################
 # main.tf — Gitea on Azure App Service + Azure Database for PostgreSQL
 #
+# Suffix is fixed to "i138vq" so resource names are stable across destroy/apply
+# cycles — GitHub repository secrets never need to be updated.
+#
 # Simplified architecture aligned with the course labs:
 #   - Lab 04-optional : ACR + App Service with container images
 #   - Lab 06          : Azure App Service (PaaS) deployment
@@ -18,10 +21,6 @@ terraform {
       source  = "hashicorp/azurerm"
       version = "~> 3.100"
     }
-    random = {
-      source  = "hashicorp/random"
-      version = "~> 3.6"
-    }
   }
 }
 
@@ -30,16 +29,11 @@ provider "azurerm" {
 }
 
 ###############################################################################
-# Random suffix — ensures globally unique resource names
+# Fixed suffix — resource names are stable so GitHub secrets never change.
+# Value "i138vq" was generated once and is now pinned for all environments.
 ###############################################################################
-resource "random_string" "suffix" {
-  length  = 6
-  upper   = false
-  special = false
-}
-
 locals {
-  suffix = random_string.suffix.result
+  suffix = "i138vq"
   tags = {
     Project     = "gitea-devops"
     Environment = var.environment
