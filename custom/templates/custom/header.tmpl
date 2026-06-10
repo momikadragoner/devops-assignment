@@ -1,2 +1,37 @@
-<!-- Custom theme injected by the ELTE DevOps CI/CD pipeline -->
-<link rel="stylesheet" href="{{AppSubURL}}/_custom/assets/css/custom.css?v={{MD5 AppVer}}">
+<!-- =====================================================================
+     ELTE DevOps Gitea — Custom Theme (injected by CI/CD pipeline)
+     Edit this file and push to main to see the change deploy live.
+     ===================================================================== -->
+<style>
+/* ── Top navigation bar ───────────────────────────────────────────────── */
+.navbar, #navbar, .ui.stackable.menu.navbar {
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%) !important;
+  border-bottom: 2px solid #5b45e0 !important;
+  box-shadow: 0 2px 12px rgba(91,69,224,.35) !important;
+}
+.navbar .item, #navbar .item, .ui.stackable.menu.navbar .item { color: #e8e8f0 !important; }
+.navbar .item:hover, #navbar .item:hover { color: #fff !important; background: rgba(91,69,224,.2) !important; }
+
+/* ── Primary / accent colour ──────────────────────────────────────────── */
+:root {
+  --color-primary:        #5b45e0;
+  --color-primary-dark-1: #4a37c8;
+  --color-primary-dark-2: #3829b0;
+  --color-primary-light-1:#7060e8;
+  --color-primary-light-2:#8575f0;
+}
+.ui.primary.button, .ui.green.button, .ui.teal.button {
+  background-color: #5b45e0 !important; border-color: #4a37c8 !important;
+}
+.ui.primary.button:hover, .ui.green.button:hover { background-color: #4a37c8 !important; }
+
+/* ── Page background ──────────────────────────────────────────────────── */
+body { background-color: #f5f4fd !important; }
+
+/* ── Home page hero subtitle ──────────────────────────────────────────── */
+.page-content.home .hero.header .sub.header { color: #5b45e0 !important; font-weight: 600; }
+
+/* ── Footer ───────────────────────────────────────────────────────────── */
+#footer { border-top: 2px solid #5b45e0; background: #1a1a2e !important; color: #e8e8f0 !important; }
+#footer a { color: #9b8ef8 !important; }
+</style>
