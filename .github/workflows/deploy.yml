@@ -127,12 +127,12 @@ jobs:
       - name: Update App Service container image
         run: |
           az webapp config container set \
-            --name ${{ secrets.APP_SERVICE_NAME }} \
-            --resource-group ${{ secrets.RESOURCE_GROUP }} \
-            --container-image-name ${{ secrets.ACR_LOGIN_SERVER }}/${{ env.IMAGE_NAME }}:sha-${{ github.sha }} \
-            --container-registry-url https://${{ secrets.ACR_LOGIN_SERVER }} \
-            --container-registry-user ${{ secrets.ACR_ADMIN_USER }} \
-            --container-registry-password ${{ secrets.ACR_ADMIN_PASSWORD }}
+            --name "${{ secrets.APP_SERVICE_NAME }}" \
+            --resource-group "${{ secrets.RESOURCE_GROUP }}" \
+            --container-image-name "${{ secrets.ACR_LOGIN_SERVER }}/${{ env.IMAGE_NAME }}:sha-${{ github.sha }}" \
+            --container-registry-url "https://${{ secrets.ACR_LOGIN_SERVER }}" \
+            --container-registry-user "${{ secrets.ACR_ADMIN_USER }}" \
+            --container-registry-password "${{ secrets.ACR_ADMIN_PASSWORD }}"
 
       - name: Restart App Service to apply new image
         run: |
