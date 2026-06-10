@@ -126,13 +126,14 @@ jobs:
 
       - name: Update App Service container image
         run: |
-          az webapp config container set \
+          az webapp config appsettings set \
             --name "${{ secrets.APP_SERVICE_NAME }}" \
             --resource-group "${{ secrets.RESOURCE_GROUP }}" \
-            --container-image-name "${{ secrets.ACR_LOGIN_SERVER }}/${{ env.IMAGE_NAME }}:sha-${{ github.sha }}" \
-            --container-registry-url "https://${{ secrets.ACR_LOGIN_SERVER }}" \
-            --container-registry-user "${{ secrets.ACR_ADMIN_USER }}" \
-            --container-registry-password "${{ secrets.ACR_ADMIN_PASSWORD }}"
+            --settings \
+              DOCKER_REGISTRY_SERVER_URL="https://${{ secrets.ACR_LOGIN_SERVER }}" \
+              DOCKER_REGISTRY_SERVER_USERNAME="${{ secrets.ACR_ADMIN_USER }}" \
+              DOCKER_REGISTRY_SERVER_PASSWORD="${{ secrets.ACR_ADMIN_PASSWORD }}" \
+              DOCKER_CUSTOM_IMAGE_NAME="${{ secrets.ACR_LOGIN_SERVER }}/${{ env.IMAGE_NAME }}:sha-${{ github.sha }}"
 
       - name: Restart App Service to apply new image
         run: |
