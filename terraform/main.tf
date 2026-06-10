@@ -152,7 +152,7 @@ resource "azurerm_linux_web_app" "main" {
     "GITEA__server__ROOT_URL"   = "https://app-gitea-${local.suffix}.azurewebsites.net/"
     "GITEA__server__APP_NAME"   = "ELTE DevOps Gitea"
     # Tell App Service which port the container listens on
-    "WEBSITES_PORT"             = "3000"
+    "WEBSITES_PORT" = "3000"
   }
 
   depends_on = [
