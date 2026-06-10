@@ -24,6 +24,7 @@ on:
 
 env:
   IMAGE_NAME: gitea-custom  # image name inside ACR
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true # suppress Node.js 20 deprecation warning
 
 jobs:
   ###########################################################################
