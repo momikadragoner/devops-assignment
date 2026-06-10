@@ -1,14 +1,6 @@
 ###############################################################################
 # main.tf — Gitea on Azure App Service + Azure Database for PostgreSQL
 #
-# Suffix is fixed to "i138vq" so resource names are stable across destroy/apply
-# cycles — GitHub repository secrets never need to be updated.
-#
-# Simplified architecture aligned with the course labs:
-#   - Lab 04-optional : ACR + App Service with container images
-#   - Lab 06          : Azure App Service (PaaS) deployment
-#   - Lab 11          : OpenTofu IaC on Azure
-#
 # Provision everything with a single command:
 #   tofu apply
 ###############################################################################
@@ -114,7 +106,7 @@ resource "azurerm_service_plan" "main" {
 #
 # On first apply we point to the public Docker Hub image of Gitea.
 # The CI/CD pipeline will later push a custom image to ACR and update
-# the container settings — no chicken-and-egg bootstrap problem.
+# the container settings.
 ###############################################################################
 resource "azurerm_linux_web_app" "main" {
   name                = "app-gitea-${local.suffix}"
