@@ -1,0 +1,163 @@
+###############################################################################
+# CI/CD Pipeline — Gitea on Azure App Service
+# Aligned with Lab 12 (GitHub Actions + Azure deployment)
+#
+# Triggers automatically on every push to `main`.
+#
+# Required GitHub repository secrets:
+#   AZURE_CREDENTIALS     – Service principal JSON (from az ad sp create-for-rbac)
+#   ACR_LOGIN_SERVER      – e.g. acrgiteaXXXXXX.azurecr.io
+#   ACR_ADMIN_USER        – ACR admin username (from tofu output)
+#   ACR_ADMIN_PASSWORD    – ACR admin password (Azure Portal > ACR > Access keys)
+#   APP_SERVICE_NAME      – e.g. app-gitea-XXXXXX  (from tofu output)
+#   RESOURCE_GROUP        – e.g. rg-gitea-prod-XXXXXX (from tofu output)
+###############################################################################
+
+name: Build & Deploy Gitea
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:        # allow manual re-run from the GitHub UI
+
+env:
+  IMAGE_NAME: gitea-custom  # image name inside ACR
+
+jobs:
+  ###########################################################################
+  # Job 1 — Lint & Validate
+  # Runs on every push and every pull request.
+  ###########################################################################
+  lint:
+    name: Lint & Validate
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Lint Dockerfile (hadolint)
+        uses: hadolint/hadolint-action@v3.1.0
+        with:
+          dockerfile: Dockerfile
+          failure-threshold: warning
+
+      - name: Set up OpenTofu
+        uses: opentofu/setup-opentofu@v1
+        with:
+          tofu_version: "1.8.0"
+
+      - name: Check Terraform/OpenTofu formatting
+        working-directory: terraform
+        run: tofu fmt -check -recursive
+
+      - name: Validate OpenTofu configuration
+        working-directory: terraform
+        env:
+          TF_VAR_db_admin_password: dummy-for-validation
+        run: |
+          tofu init -backend=false
+          tofu validate
+
+  ###########################################################################
+  # Job 2 — Build Docker image and push to ACR
+  # Runs only on pushes to main (not PRs).
+  ###########################################################################
+  build:
+    name: Build & Push Image
+    runs-on: ubuntu-latest
+    needs: lint
+    if: github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch'
+
+    outputs:
+      image_tag: ${{ steps.meta.outputs.version }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Log in to Azure Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ secrets.ACR_LOGIN_SERVER }}
+          username: ${{ secrets.ACR_ADMIN_USER }}
+          password: ${{ secrets.ACR_ADMIN_PASSWORD }}
+
+      - name: Extract image metadata (tags and labels)
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ secrets.ACR_LOGIN_SERVER }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=sha,prefix=sha-
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  ###########################################################################
+  # Job 3 — Deploy to Azure App Service
+  # Updates the container image and restarts the App Service.
+  ###########################################################################
+  deploy:
+    name: Deploy to App Service
+    runs-on: ubuntu-latest
+    needs: build
+    environment: production   # optional: add manual approval gate in GitHub
+
+    steps:
+      - name: Log in to Azure
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Update App Service container image
+        run: |
+          az webapp config container set \
+            --name ${{ secrets.APP_SERVICE_NAME }} \
+            --resource-group ${{ secrets.RESOURCE_GROUP }} \
+            --container-image-name ${{ secrets.ACR_LOGIN_SERVER }}/${{ env.IMAGE_NAME }}:sha-${{ github.sha }} \
+            --container-registry-url https://${{ secrets.ACR_LOGIN_SERVER }} \
+            --container-registry-user ${{ secrets.ACR_ADMIN_USER }} \
+            --container-registry-password ${{ secrets.ACR_ADMIN_PASSWORD }}
+
+      - name: Restart App Service to apply new image
+        run: |
+          az webapp restart \
+            --name ${{ secrets.APP_SERVICE_NAME }} \
+            --resource-group ${{ secrets.RESOURCE_GROUP }}
+
+      - name: Wait for App Service to become healthy
+        run: |
+          echo "Waiting 30s for the app to start..."
+          sleep 30
+          STATUS=$(az webapp show \
+            --name ${{ secrets.APP_SERVICE_NAME }} \
+            --resource-group ${{ secrets.RESOURCE_GROUP }} \
+            --query "state" -o tsv)
+          echo "App Service state: $STATUS"
+          if [ "$STATUS" != "Running" ]; then
+            echo "❌ App Service is not in Running state!"
+            exit 1
+          fi
+          echo "✅ Deployment successful!"
+
+      - name: Print application URL
+        run: |
+          URL=$(az webapp show \
+            --name ${{ secrets.APP_SERVICE_NAME }} \
+            --resource-group ${{ secrets.RESOURCE_GROUP }} \
+            --query "defaultHostName" -o tsv)
+          echo "🚀 Gitea is live at: https://$URL"
