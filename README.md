@@ -1,10 +1,9 @@
-# Gitea on Azure App Service — DevOps Assignment
+# Gitea on Azure App Service - DevOps Assignment
 
 ## Application
 
-**[Gitea](https://gitea.io)** — self-hosted, open-source Git service (like GitHub) with a full web frontend and a PostgreSQL backend database.
+**[Gitea](https://gitea.io)** self-hosted, open-source Git service (like GitHub) with a full web frontend and a PostgreSQL backend database.
 
-> Not in the example list: eShopOnWeb, Pet Store, Online Boutique, Sock Shop. ✅
 
 ---
 
